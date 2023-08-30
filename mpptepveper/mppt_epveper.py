@@ -97,7 +97,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         Returns :
         dict : dictionary with key:value pair
         """
-        voltage = 1
+        voltage = -1
         current = -1
         power = -1
         response = self.getRegisters(id, PV_INFO, input_register=True)

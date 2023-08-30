@@ -6,7 +6,7 @@ from typing import List
 
 class BaseMPPTSync:
 
-    def __init__(self, port, baudrate, timeout=0.1):
+    def __init__(self, port, baudrate, timeout=1):
         self.__port = port
         self.__baudrate = baudrate
         self.__timeout = timeout
@@ -134,6 +134,32 @@ class ParameterSetting :
         self.__lowVoltageDisconnect = 4700
         self.__dischargingLimitVoltage = 4600
 
+    def __eq__(self, other): 
+        if not isinstance(other, ParameterSetting):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+
+        if self.id == other.id \
+        and self.batteryType == other.batteryType \
+        and self.capacity == other.capacity \
+        and self.tempCompensation == other.tempCompensation \
+        and self.overvoltageDisconnect == other.overvoltageDisconnect \
+        and self.chargingLimitVoltage == other.chargingLimitVoltage \
+        and self.overvoltageReconnect == other.overvoltageReconnect \
+        and self.equalizeChargingVoltage == other.equalizeChargingVoltage \
+        and self.boostChargingVoltage == other.boostChargingVoltage \
+        and self.floatChargingVoltage == other.floatChargingVoltage \
+        and self.boostReconnectVoltage == other.boostReconnectVoltage \
+        and self.lowVoltageReconnect == other.lowVoltageReconnect \
+        and self.underVoltageWarningRecover == other.underVoltageWarningRecover \
+        and self.underVoltageWarning == other.underVoltageWarning \
+        and self.lowVoltageDisconnect == other.lowVoltageDisconnect \
+        and self.dischargingLimitVoltage == other.dischargingLimitVoltage :
+            return True
+        else :
+            return False
+
+
     def printContainer(self) :
         """
         Print each member value
@@ -154,7 +180,7 @@ class ParameterSetting :
         print ("Undervoltage warning : ", self.__underVoltageWarning)
         print ("Low voltage disconnect : ", self.__lowVoltageDisconnect)
         print ("Discharging limit voltage : ", self.__dischargingLimitVoltage)
-
+    
     def setParam(self, registerList : list[int]) -> int:
         """
         Set each member parameter, only valid if the received list length is 15
@@ -314,7 +340,7 @@ class ParserSetting() :
     def __init__(self) -> None:
         pass
 
-    def parse(self, val : dict) -> list[ParameterSetting] :
+    def parse(self, val : dict) -> List[ParameterSetting] :
         """
         Parse json file from register_config.json into list of ParameterSetting
 
@@ -326,7 +352,7 @@ class ParserSetting() :
         """
         
         deviceList : list[dict] = val['device']
-        paramList : list[ParameterSetting] = []
+        paramList : List[ParameterSetting] = []
         for a in deviceList :
             p = ParameterSetting()
             p.id = a['slave']
