@@ -1,0 +1,68 @@
+{
+    "port" : "COM10",
+    "device" : [
+        {
+            "slave" : 1,
+            "parameter" : 
+            {
+                "battery_type" : 0,
+                "battery_capacity" : 832,
+                "temperature_comp" : 300,
+                "overvoltage_disconnect" : 5570,
+                "charging_limit_voltage" : 5520,
+                "overvoltage_reconnect" : 5370,
+                "equalize_charging_voltage" : 5470,
+                "boost_charging_voltage" : 5470,
+                "float_charging_voltage" : 5470,
+                "boost_reconnect_charging_voltage" : 5370,
+                "low_voltage_reconnect" : 4950,
+                "undervoltage_warning_recover" : 4900,
+                "undervoltage_warning" : 4800,
+                "low_voltage_disconnect" : 4700,
+                "discharging_limit_voltage" : 4600
+            }
+        },
+        {
+            "slave" : 2,
+            "parameter" : 
+            {
+                "battery_type" : 0,
+                "battery_capacity" : 832,
+                "temperature_comp" : 300,
+                "overvoltage_disconnect" : 5570,
+                "charging_limit_voltage" : 5520,
+                "overvoltage_reconnect" : 5370,
+                "equalize_charging_voltage" : 5470,
+                "boost_charging_voltage" : 5470,
+                "float_charging_voltage" : 5470,
+                "boost_reconnect_charging_voltage" : 5370,
+                "low_voltage_reconnect" : 4950,
+                "undervoltage_warning_recover" : 4900,
+                "undervoltage_warning" : 4800,
+                "low_voltage_disconnect" : 4700,
+                "discharging_limit_voltage" : 4600
+            }
+        },
+        {
+            "slave" : 3,
+            "parameter" : 
+            {
+                "battery_type" : 0,
+                "battery_capacity" : 832,
+                "temperature_comp" : 300,
+                "overvoltage_disconnect" : 5570,
+                "charging_limit_voltage" : 5520,
+                "overvoltage_reconnect" : 5370,
+                "equalize_charging_voltage" : 5470,
+                "boost_charging_voltage" : 5470,
+                "float_charging_voltage" : 5470,
+                "boost_reconnect_charging_voltage" : 5370,
+                "low_voltage_reconnect" : 4950,
+                "undervoltage_warning_recover" : 4900,
+                "undervoltage_warning" : 4800,
+                "low_voltage_disconnect" : 4700,
+                "discharging_limit_voltage" : 4600
+            }
+        }
+    ]
+}
