@@ -6,8 +6,8 @@ import datetime
 
 class MPPTEPVEPER(BaseMPPTSync):
 
-    def __init__(self, port:str, baudrate:int=115200):
-        super().__init__(port,baudrate)
+    def __init__(self, port:str, baudrate:int=115200, timeout:int = 1):
+        super().__init__(port, baudrate, timeout=timeout)
 
     def getRegisters(self, id:int, info:tuple, input_register=False) -> list:
         addr = info[0]
@@ -20,6 +20,40 @@ class MPPTEPVEPER(BaseMPPTSync):
         # log.debug(rr.encode())
         return response_register
     
+    def isSameSetting(self, newSetting : ParameterSetting) -> int :
+        """
+        Check the equalness of ParameterSetting
+
+        Args :
+        newSetting(Parameter Setting) : new parameter to be sent into mppt
+
+        Returns :
+        int : the result of comparison between new setting and old setting. return 1 if same, 0 if it is different, -1 if it is different type
+        """
+        oldSetting = self.getCurrentSetting(newSetting.id)
+        if type(oldSetting) is not ParameterSetting :
+            return -1
+        return newSetting == oldSetting
+
+    def startScan(self, startId : int, endId : int) -> list[int] :
+        """
+        Scan for connected id
+
+        Args :
+        startId (int) : start id to be scanned
+        endId (int) : last id to be scanned
+
+        Returns :
+        list[int] : list of connected id
+        """
+        connectedIdList : list[int] = []
+        for i in range(startId, endId+1) :
+            currentSetting = self.getCurrentSetting(i)
+            print(type(currentSetting))
+            if currentSetting is not None :
+                connectedIdList.append(i)
+        return connectedIdList
+
     def setBulkParameter(self, setting : ParameterSetting) -> int:
         """
         Set Bulk Parameter, convert ParameterSetting into list of integer with length of 15
@@ -211,7 +245,7 @@ class MPPTEPVEPER(BaseMPPTSync):
     
     def setChargeOff(self, id : int) -> int :
         """
-        Set load off
+        Set charge off
 
         Args :
         id (int) : slave id of target device

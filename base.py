@@ -3,6 +3,7 @@ import json
 from pymodbus.client.sync import ModbusSerialClient as ModbusClient
 from enum import Enum
 from typing import List
+import logging
 
 class BaseMPPTSync:
 
@@ -137,6 +138,7 @@ class ParameterSetting :
     def __eq__(self, other): 
         if not isinstance(other, ParameterSetting):
             # don't attempt to compare against unrelated types
+            print("Error : Attempted to compare between different type, returning False")
             return NotImplemented
 
         if self.id == other.id \
@@ -158,7 +160,6 @@ class ParameterSetting :
             return True
         else :
             return False
-
 
     def printContainer(self) :
         """
