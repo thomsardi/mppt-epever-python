@@ -3,6 +3,7 @@ from pymodbus.client.sync import ModbusSerialClient as ModbusClient
 from .address import *
 from base import BaseMPPTSync, ParameterSetting, Status
 import datetime
+import time
 
 class MPPTEPVEPER(BaseMPPTSync):
 
@@ -20,7 +21,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         # log.debug(rr.encode())
         return response_register
     
-    def isSameSetting(self, newSetting : ParameterSetting) -> int :
+    def checkSetting(self, newSetting : ParameterSetting) -> int :
         """
         Check the equalness of ParameterSetting
 
@@ -48,10 +49,10 @@ class MPPTEPVEPER(BaseMPPTSync):
         """
         connectedIdList : list[int] = []
         for i in range(startId, endId+1) :
-            currentSetting = self.getCurrentSetting(i)
-            print(type(currentSetting))
-            if currentSetting is not None :
+            arrayRatedVoltage = self.getArrayRatedVoltage(i)
+            if (arrayRatedVoltage >= 0) :
                 connectedIdList.append(i)
+            time.sleep(0.1) #always add sleep when using modbus within for loop. without sleep, the modbus result always failed
         return connectedIdList
 
     def setBulkParameter(self, setting : ParameterSetting) -> int:
@@ -88,6 +89,13 @@ class MPPTEPVEPER(BaseMPPTSync):
         else :
             return 0
 
+    def getArrayRatedVoltage(self, id : int) -> int :
+        ratedVoltage = -1
+        response = self.getRegisters(id, ARRAY_RATED_VOLTAGE, input_register=True)
+        if (not response.isError()) :
+            ratedVoltage = response.registers[0]
+        return ratedVoltage
+
     def getPVInfo(self, id:int):
         response = self.getRegisters(id, PV_INFO, input_register=True)
         return {
@@ -114,9 +122,11 @@ class MPPTEPVEPER(BaseMPPTSync):
         """
         response = self.getRegisters(id, SETTING_PARAMETER)
         if (response.isError()) :
+            # print("Response error")
             return None
         p = ParameterSetting()
         if (not p.setParam(response.registers)) :
+            print("Failed to set parameter")
             return None
         p.id = id
         return p
@@ -213,6 +223,9 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         Args :
         id (int) : slave id of target device
+
+        Returns :
+        int : 1 if success, 0 if failed
         """
         request = self.client.write_coil(LOAD_MANUAL_CONTROL[0], 1, unit=id)
         if (request.isError()) :
@@ -225,6 +238,9 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         Args :
         id (int) : slave id of target device
+
+        Returns :
+        int : 1 if success, 0 if failed
         """
         request = self.client.write_coil(LOAD_MANUAL_CONTROL[0], 0, unit=id)
         if (request.isError()) :
@@ -237,6 +253,9 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         Args :
         id (int) : slave id of target device
+
+        Returns :
+        int : 1 if success, 0 if failed
         """
         request = self.client.write_coil(CHARGING_SET[0], 1, unit=id)
         if (request.isError()) :
@@ -249,6 +268,9 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         Args :
         id (int) : slave id of target device
+
+        Returns :
+        int : 1 if success, 0 if failed
         """
         request = self.client.write_coil(CHARGING_SET[0], 0, unit=id)
         if (request.isError()) :
@@ -261,6 +283,9 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         Args :
         id (int) : slave id of target device
+
+        Returns :
+        int : 1 if success, 0 if failed
         """
         request = self.client.write_coil(OUTPUT_CONTROL_MODE[0], 1, unit=id)
         if (request.isError()) :
@@ -273,6 +298,9 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         Args :
         id (int) : slave id of target device
+
+        Returns :
+        int : 1 if success, 0 if failed
         """
         request = self.client.write_coil(OUTPUT_CONTROL_MODE[0], 0, unit=id)
         if (request.isError()) :
@@ -285,6 +313,9 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         Args :
         id (int) : slave id of target device
+
+        Returns :
+        int : 1 if success, 0 if failed
         """
         request = self.client.write_coil(DEFAULT_LOAD_STATE[0], 1, unit=id)
         if (request.isError()) :
@@ -297,6 +328,9 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         Args :
         id (int) : slave id of target device
+
+        Returns :
+        int : 1 if success, 0 if failed
         """
         request = self.client.write_coil(DEFAULT_LOAD_STATE[0], 0, unit=id)
         if (request.isError()) :
@@ -565,7 +599,7 @@ class MPPTEPVEPER(BaseMPPTSync):
             chargingCurrent = round(response.registers[0] / 100, 2)
         
         result = {
-            'charging_current': {
+            'rated_charging_current': {
                 'value': chargingCurrent,
                 'satuan': 'Ampere'
             }
@@ -588,7 +622,7 @@ class MPPTEPVEPER(BaseMPPTSync):
             loadCurrent = round(response.registers[0] / 100, 2)
         
         result = {
-            'load_current': {
+            'rated_load_current': {
                 'value': loadCurrent,
                 'satuan': 'Ampere'
             }

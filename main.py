@@ -10,71 +10,43 @@ if __name__ == "__main__" :
    mppt =  MPPTEPVEPER(port=port, timeout=0.1) #setup modbus with specified port, 115200 baudrate, 0.1s timeout
    parser = ParserSetting() #create ParserSetting object
    dummy : List[ParameterSetting] = parser.parse(file) #get value from "parameter" key 
-   # print(len(dummy))
-   for a in dummy :
-      isSameFlag = mppt.isSameSetting(a) #check for equalness of setting parameter
+
+   for a in dummy : #for loop to write a new setting
+      print("Read setting on slave id :", a.id)
+      isSameFlag = mppt.checkSetting(a) #check for equalness of setting parameter
       if (isSameFlag == 0) : #different setting
-         print("Writing new setting")
-         mppt.setBulkParameter(a)
+         print("New setting detected.. Writing new setting..")
+         if (mppt.setBulkParameter(a)) :
+            print("Success writing new setting")
+         else :
+            print("Failed to write new setting")
       elif (isSameFlag == 1) : #same setting
-         print("Same Setting")
+         print("Same setting.. Skip writing..")
       else : #different type
-         print("different type")
+         print("different type.. Skip writing..")
+      time.sleep(0.1) #always add sleep when using modbus within for loop. without sleep, the modbus result always failed
 
-   print(mppt.startScan(1,5)) #start id scan
-   
-   if (mppt.setLoadOn(1)) : #set load on
-      print("Success set load at id ", 1)
-   else :
-      print("Failed set load at id ", 1)
-   time.sleep(0.2)
-   print(mppt.getAllPVInfo(1)) #get pv info
-   time.sleep(0.2)
-   print(mppt.getGeneratedEnergy(1)) #get generated energy
-   time.sleep(0.2)
-   print(mppt.getBatteryInfo(1)) #get battery info
-   time.sleep(0.2)
-   print(mppt.getLoadInfo(1)) #get load info
-   time.sleep(0.2)
-   print(mppt.getBatterySoc(1)) #get battery state of charge
-   time.sleep(0.2)
-   print(mppt.getTemperatureInfo(1)) #get temperature
-   time.sleep(0.2)
-   print(mppt.getStatusInfo(1)) #get alarm
-   time.sleep(0.2)
-   print(mppt.getChargingState(1)) #get charge state
-   time.sleep(0.2)
-   print(mppt.getRatedChargingCurrent(1)) #get rated charge current
-   time.sleep(0.2)
-   print(mppt.getRatedLoadCurrent(1)) #get rated load current
-   time.sleep(0.2)
-   print(mppt.getDischargingState(1)) #get discharge state
-
-   if (mppt.setLoadOff(1)) : #set load off
-      print("Success set load at id ", 1)
-   else :
-      print("Failed set load at id ", 1)
-   time.sleep(0.2)
-   print(mppt.getAllPVInfo(1))
-   time.sleep(0.2)
-   print(mppt.getGeneratedEnergy(1))
-   time.sleep(0.2)
-   print(mppt.getBatteryInfo(1))
-   time.sleep(0.2)
-   print(mppt.getLoadInfo(1))
-   time.sleep(0.2)
-   print(mppt.getBatterySoc(1))
-   time.sleep(0.2)
-   print(mppt.getTemperatureInfo(1))
-   time.sleep(0.2)
-   print(mppt.getStatusInfo(1))
-   time.sleep(0.2)
-   print(mppt.getChargingState(1))
-   time.sleep(0.2)
-   print(mppt.getRatedChargingCurrent(1))
-   time.sleep(0.2)
-   print(mppt.getRatedLoadCurrent(1))
-   time.sleep(0.2)
-   print(mppt.getDischargingState(1))
+   slaveList = mppt.startScan(1,3) #start id scan
+   print("List of connected slave :", slaveList)
+   for slave in slaveList :
+      params = mppt.getCurrentSetting(slave)
+      if (params is not None) :
+         params.printContainer()
+      if (mppt.setLoadOn(slave)) : #set load on
+         print("Success set load on at id", slave)
+      else :
+         print("Failed set load on at id", slave)
+      print(mppt.getAllPVInfo(slave)) #get pv info
+      print(mppt.getGeneratedEnergy(slave)) #get generated energy
+      print(mppt.getBatteryInfo(slave)) #get battery info
+      print(mppt.getLoadInfo(slave)) #get load info
+      print(mppt.getBatterySoc(slave)) #get battery state of charge
+      print(mppt.getTemperatureInfo(slave)) #get temperature
+      print(mppt.getStatusInfo(slave)) #get alarm
+      print(mppt.getChargingState(slave)) #get charge state
+      print(mppt.getRatedChargingCurrent(slave)) #get rated charge current
+      print(mppt.getRatedLoadCurrent(slave)) #get rated load current
+      print(mppt.getDischargingState(slave)) #get discharge state
+      time.sleep(0.1) #always add sleep when using modbus within for loop. without sleep, the modbus result always failed
    
     

@@ -6,7 +6,7 @@
             "parameter" : 
             {
                 "battery_type" : 0,
-                "battery_capacity" : 832,
+                "battery_capacity" : 896,
                 "temperature_comp" : 300,
                 "overvoltage_disconnect" : 5570,
                 "charging_limit_voltage" : 5520,
@@ -27,7 +27,7 @@
             "parameter" : 
             {
                 "battery_type" : 0,
-                "battery_capacity" : 832,
+                "battery_capacity" : 896,
                 "temperature_comp" : 300,
                 "overvoltage_disconnect" : 5570,
                 "charging_limit_voltage" : 5520,
@@ -48,7 +48,7 @@
             "parameter" : 
             {
                 "battery_type" : 0,
-                "battery_capacity" : 832,
+                "battery_capacity" : 896,
                 "temperature_comp" : 300,
                 "overvoltage_disconnect" : 5570,
                 "charging_limit_voltage" : 5520,

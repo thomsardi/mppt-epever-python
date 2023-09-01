@@ -103,7 +103,7 @@ class ParameterSetting :
         ParameterSetting Object with each member default value :
         id : default 0
         batteryType : 0 = User, 1 = Sealed, 2 = GEL, 3 = Flooded (default 0)
-        capacity : 1 - 9999 Ah (default 832)
+        capacity : 1 - 9999 Ah (default 56 * 16 = 896)
         tempCompensation : 0 - 900 (default 300)
         overvoltagedisconnect : default 5570
         chargingLimitVoltage : default 5520
@@ -165,22 +165,22 @@ class ParameterSetting :
         """
         Print each member value
         """
-        print ("Id : ", self.__id)
-        print ("Battery type : ", self.__batteryType)
-        print ("Capacity : ", self.__capacity)
-        print ("Temperature compensation : ", self.__tempCompensation)
-        print ("Overvoltage disconnect : ", self.__overvoltageDisconnect)
-        print ("Charging limit voltage : ", self.__chargingLimitVoltage)
-        print ("Overvoltage reconnect : ", self.__overvoltageReconnect)
-        print ("Equalize charging voltage : ", self.__equalizeChargingVoltage)
-        print ("Boost charging voltage : ", self.__boostChargingVoltage)
-        print ("Float charging voltage : ", self.__floatChargingVoltage)
-        print ("Boost reconnect voltage : ", self.__boostReconnectVoltage)
-        print ("Low voltage reconnect : ", self.__lowVoltageReconnect)
-        print ("Undervoltage warning recover : ", self.__underVoltageWarningRecover)
-        print ("Undervoltage warning : ", self.__underVoltageWarning)
-        print ("Low voltage disconnect : ", self.__lowVoltageDisconnect)
-        print ("Discharging limit voltage : ", self.__dischargingLimitVoltage)
+        print ("Id :", self.__id)
+        print ("Battery type :", self.__batteryType)
+        print ("Capacity :", self.__capacity)
+        print ("Temperature compensation :", self.__tempCompensation)
+        print ("Overvoltage disconnect :", self.__overvoltageDisconnect)
+        print ("Charging limit voltage :", self.__chargingLimitVoltage)
+        print ("Overvoltage reconnect :", self.__overvoltageReconnect)
+        print ("Equalize charging voltage :", self.__equalizeChargingVoltage)
+        print ("Boost charging voltage :", self.__boostChargingVoltage)
+        print ("Float charging voltage :", self.__floatChargingVoltage)
+        print ("Boost reconnect voltage :", self.__boostReconnectVoltage)
+        print ("Low voltage reconnect :", self.__lowVoltageReconnect)
+        print ("Undervoltage warning recover :", self.__underVoltageWarningRecover)
+        print ("Undervoltage warning :", self.__underVoltageWarning)
+        print ("Low voltage disconnect :", self.__lowVoltageDisconnect)
+        print ("Discharging limit voltage :", self.__dischargingLimitVoltage)
     
     def setParam(self, registerList : list[int]) -> int:
         """
