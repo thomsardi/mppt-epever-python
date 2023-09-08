@@ -3,15 +3,17 @@ import json
 from pymodbus.client.sync import ModbusSerialClient as ModbusClient
 from enum import Enum
 from typing import List
+from abc import ABC, abstractmethod
 import logging
 
-class BaseMPPTSync:
+class BaseMPPTSync(ABC):
 
     def __init__(self, port, baudrate, timeout=1):
         self.__port = port
         self.__baudrate = baudrate
         self.__timeout = timeout
         self.client = ModbusClient(port=port, baudrate=baudrate, method='rtu',timeout=timeout)
+        self.modbusInit = True
 
     @property
     def port(self) -> str:
@@ -21,12 +23,19 @@ class BaseMPPTSync:
     def baudrate(self) -> int:
         return self.__baudrate
 
-    def writeRegisters(self, addr, val, id) :
-        request = self.client.write_registers(addr, val, unit=id)
-        return request
+    def begin(self, port : str, baudrate : int, method : str, timeout : float) :
+        self.client = ModbusClient(port=port, baudrate=baudrate, method=method, timeout=timeout)
+        self.modbusInit = True
+
+    def end(self) :
+        self.client = None
+        self.modbusInit = False
 
     def setRegisters(self, id:int, addr:int, val:list):
+        if (not self.client.connect()) :
+            return None
         request = self.client.write_registers(addr, val, unit=id)
+        self.client.close()
         return request
 
     def getRegisters(self, id:int, info:tuple) -> list:
@@ -35,8 +44,31 @@ class BaseMPPTSync:
         response_register = self.client.read_holding_registers(addr, length, unit=id)
         return response_register
 
-    def getPVInfo(self, id:int) -> dict:
-        raise NotImplementedError
+    
+
+    @abstractmethod
+    def scan(self, start_id : int, end_id : int) -> list[int]:
+        pass
+
+    @abstractmethod
+    def get_pv_info(self, id:int) -> dict:
+        pass
+
+    @abstractmethod
+    def get_load_info(self, id:int) -> dict:
+        pass
+
+    @abstractmethod
+    def get_battery_info(self, id:int) -> dict:
+        pass
+
+    @abstractmethod
+    def get_load_status(self, id:int) -> dict:
+        pass
+
+    @abstractmethod
+    def get_and_change_setting(self, id : int) -> int :
+        pass
 
     def getEnergyDay(self, id:int) -> dict:
         raise NotImplementedError
@@ -182,6 +214,27 @@ class ParameterSetting :
         print ("Low voltage disconnect :", self.__lowVoltageDisconnect)
         print ("Discharging limit voltage :", self.__dischargingLimitVoltage)
     
+    def getListParam(self) -> list[int]:
+        value : list[int] = [
+            self.__id,
+            self.__batteryType,
+            self.__capacity,
+            self.__tempCompensation,
+            self.__overvoltageDisconnect,
+            self.__chargingLimitVoltage,
+            self.__overvoltageReconnect,
+            self.__equalizeChargingVoltage,
+            self.__boostChargingVoltage,
+            self.__floatChargingVoltage,
+            self.__boostReconnectVoltage,
+            self.__lowVoltageReconnect,
+            self.__underVoltageWarningRecover,
+            self.__underVoltageWarning,
+            self.__lowVoltageDisconnect,
+            self.__dischargingLimitVoltage
+        ]
+        return value
+
     def setParam(self, registerList : list[int]) -> int:
         """
         Set each member parameter, only valid if the received list length is 15

@@ -14,11 +14,15 @@ class MPPTEPVEPER(BaseMPPTSync):
         addr = info[0]
         length = info[1]
         # rr = self.client.read_holding_registers(addr, length, unit=id)
+        if(not self.client.connect()) :
+            print("Failed to connect")
+            return None
         if input_register:
             response_register = self.client.read_input_registers(addr, length, unit=id)
         else:
             response_register = self.client.read_holding_registers(addr, length, unit=id)
         # log.debug(rr.encode())
+        self.client.close()
         return response_register
     
     def checkSetting(self, newSetting : ParameterSetting) -> int :
@@ -35,6 +39,30 @@ class MPPTEPVEPER(BaseMPPTSync):
         if type(oldSetting) is not ParameterSetting :
             return -1
         return newSetting == oldSetting
+
+    def scan(self, start_id : int, end_id : int) :
+        return self.startScan(startId=start_id, endId=end_id)
+    
+    def get_pv_info(self, id:int) -> dict:
+        return self.getAllPVInfo(id=id)
+
+    def get_load_info(self, id:int) -> dict:
+        return self.getLoadInfo(id=id)
+
+    def get_battery_info(self, id:int) -> dict:
+        return self.getBatteryInfo(id=id)
+
+    def get_load_status(self, id:int) -> dict:
+        return self.getLoadInfo(id=id)
+
+    def get_and_change_setting(self, id : int, val : list[int]) -> int :
+        paramList : list[int] = self.getCurrentSetting(id=id).getListParam()
+        for index, element in enumerate(val) :
+            if (paramList[index] == element) :
+                continue
+            else :
+                return 0
+        return 1
 
     def startScan(self, startId : int, endId : int) -> list[int] :
         """
@@ -92,7 +120,7 @@ class MPPTEPVEPER(BaseMPPTSync):
     def getArrayRatedVoltage(self, id : int) -> int :
         ratedVoltage = -1
         response = self.getRegisters(id, ARRAY_RATED_VOLTAGE, input_register=True)
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             ratedVoltage = response.registers[0]
         return ratedVoltage
 
@@ -121,7 +149,7 @@ class MPPTEPVEPER(BaseMPPTSync):
 
         """
         response = self.getRegisters(id, SETTING_PARAMETER)
-        if (response.isError()) :
+        if (response.isError() and response is not None) :
             # print("Response error")
             return None
         p = ParameterSetting()
@@ -145,7 +173,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         current = -1
         power = -1
         response = self.getRegisters(id, PV_INFO, input_register=True)
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             voltage = round(response.registers[0] / 100, 2)
             current = round(response.registers[1] / 100, 2)
             power = round(((response.registers[3] << 16) + response.registers[2]) / 100, 2)
@@ -191,7 +219,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         generatedEnergyThisYear = -1
         generatedEnergyTotal = -1
         response = self.getRegisters(id, GENERATED_ENERGY_INFO, input_register=True)
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             generatedEnergyToday = ((response.registers[1] << 16) + response.registers[0]) / 100
             generatedEnergyThisMonth = ((response.registers[3] << 16) + response.registers[2]) / 100
             generatedEnergyThisYear = ((response.registers[5] << 16) + response.registers[4]) / 100
@@ -391,7 +419,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         response = self.getRegisters(id, BATTERY_INFO, input_register=True)
         batteryVoltage = -1
         batteryCurrent = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             batteryVoltage = round(response.registers[0] / 100, 2)
             batteryCurrent = round((((response.registers[2] << 16) + response.registers[1]) / 100) , 2)
 
@@ -421,7 +449,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         loadVoltage = -1
         loadCurrent = -1
         loadPower = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             loadVoltage = round(response.registers[0] / 100, 2)
             loadCurrent = round(response.registers[1] / 100, 2)
             loadPower = round((((response.registers[3] << 16) + response.registers[2]) / 100) , 2)
@@ -455,7 +483,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         """
         response = self.getRegisters(id, BATTERY_SOC, input_register=True)
         soc = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             soc = response.registers[0]
         
         result = {
@@ -480,7 +508,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         response = self.getRegisters(id, TEMPERATURE_INFO, input_register=True)
         batteryTemperature = -1
         deviceTemperature = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             batteryTemperature = round(response.registers[0] / 100, 2)
             deviceTemperature = round(response.registers[1] / 100, 2)
         
@@ -512,7 +540,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         batteryStatus = -1
         chargingStatus = -1
         dischargingStatus = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             batteryStatus = response.registers[0]
             batteryStatusDict = s.unpackBatteryStatus(batteryStatus)
             chargingStatus = response.registers[1]
@@ -544,7 +572,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         batteryStatus = -1
         chargingStatus = -1
         dischargingStatus = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             batteryStatus = response.registers[0]
             s.unpackBatteryStatus(batteryStatus)
             chargingStatus = response.registers[1]
@@ -571,7 +599,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         batteryStatus = -1
         chargingStatus = -1
         dischargingStatus = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             batteryStatus = response.registers[0]
             s.unpackBatteryStatus(batteryStatus)
             chargingStatus = response.registers[1]
@@ -595,7 +623,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         """
         response = self.getRegisters(id, RATED_CHARGING_CURRENT, input_register=True)
         chargingCurrent = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             chargingCurrent = round(response.registers[0] / 100, 2)
         
         result = {
@@ -618,7 +646,7 @@ class MPPTEPVEPER(BaseMPPTSync):
         """
         response = self.getRegisters(id, RATED_LOAD_CURRENT, input_register=True)
         loadCurrent = -1
-        if (not response.isError()) :
+        if (not response.isError() and response is not None) :
             loadCurrent = round(response.registers[0] / 100, 2)
         
         result = {
